@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>החוטב והחתול</title>
+  <style>
+    :root{
+      --bg:#0c1210;
+      --panel:rgba(0,0,0,.55);
+      --text:#e8f3ee;
+      --muted:#b7c8c0;
+      --accent:#7ee2b8;
+      --danger:#ff4d6d;
+    }
+    *{box-sizing:border-box; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;}
+    body{margin:0; background:linear-gradient(180deg,#030605,#0a1411 40%,#050807); color:var(--text); overflow:hidden;}
+
+    #wrap{position:fixed; inset:0; display:grid; grid-template-rows:auto 1fr;}
+
+    header{
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      padding:10px 14px;
+      background:linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.25));
+      border-bottom:1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .left, .right{display:flex; align-items:center; gap:10px;}
+
+    .badge{padding:6px 10px; border:1px solid rgba(255,255,255,.12); border-radius:999px; background:rgba(0,0,0,.35); font-weight:600;}
+    .badge strong{color:var(--accent)}
+
+    button{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.35);
+      color:var(--text);
+      border-radius:12px;
+      padding:8px 10px;
+      font-weight:700;
+    }
+    button:hover{border-color:rgba(126,226,184,.6)}
+
+    #gameArea{position:relative; width:100%; height:100%;}
+    canvas{width:100%; height:100%; display:block; image-rendering:pixelated;}
+
+    #hud{
+      position:absolute; left:12px; top:12px;
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:10px 12px;
+      width:min(360px, calc(100% - 24px));
+      backdrop-filter: blur(10px);
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    #hud h1{margin:0 0 6px; font-size:16px; letter-spacing:.2px;}
+    #hud p{margin:0; color:var(--muted); font-size:13px; line-height:1.35}
+    .row{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px;}
+    .bar{height:10px; background:rgba(255,255,255,.10); border-radius:999px; overflow:hidden; flex:1;}
+    .fill{height:100%; width:0%; background:linear-gradient(90deg, rgba(126,226,184,.95), rgba(126,226,184,.55));}
+    .tiny{font-size:12px; color:var(--muted)}
+
+    #hint{
+      position:absolute; right:12px; top:12px;
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:10px 12px;
+      width:min(420px, calc(100% - 24px));
+      backdrop-filter: blur(10px);
+    }
+    #hint b{color:var(--accent)}
+
+    #overlay{
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background:radial-gradient(circle at 50% 45%, rgba(0,0,0,.45), rgba(0,0,0,.85));
+      opacity:1;
+      transition:opacity .35s ease;
+    }
+    #overlay.hidden{opacity:0; pointer-events:none;}
+
+    .card{
+      width:min(720px, calc(100% - 32px));
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:22px;
+      padding:18px;
+      backdrop-filter: blur(14px);
+      box-shadow:0 20px 60px rgba(0,0,0,.55);
+    }
+    .card h2{margin:0 0 8px; font-size:18px}
+    .card ul{margin:10px 0 0; padding:0 18px; color:var(--muted);}
+    .card li{margin:6px 0}
+    .card .actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+
+    /* Jumpscare */
+    #jumpscare{
+      position:absolute; inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.88);
+      z-index:50;
+    }
+    #jumpscare.show{display:flex; animation:flash .55s ease-out;}
+    @keyframes flash{
+      0%{transform:scale(1); filter:blur(0px)}
+      15%{transform:scale(1.05); filter:blur(0px)}
+      40%{transform:scale(1.02); filter:blur(1px)}
+      100%{transform:scale(1); filter:blur(0px)}
+    }
+
+    .cat{
+      width:min(560px, 86vw);
+      aspect-ratio: 1 / 1;
+      border-radius:28px;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(255,255,255,.08), transparent 55%),
+        radial-gradient(circle at 35% 45%, rgba(255,255,255,.12), transparent 40%),
+        radial-gradient(circle at 65% 45%, rgba(255,255,255,.12), transparent 40%),
+        radial-gradient(circle at 50% 65%, rgba(255,255,255,.10), transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(0,0,0,.0), rgba(0,0,0,.85) 70%),
+        linear-gradient(180deg, rgba(20,10,10,.9), rgba(0,0,0,.95));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 30px 120px rgba(255,77,109,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .cat:before, .cat:after{
+      content:"";
+      position:absolute;
+      width:46%; height:46%;
+      top:-10%;
+      background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.75));
+      border:1px solid rgba(255,255,255,.10);
+      border-bottom:none;
+      border-radius:22px 22px 80px 80px;
+      transform:rotate(12deg);
+      filter:drop-shadow(0 20px 40px rgba(0,0,0,.45));
+      opacity:.95;
+    }
+    .cat:before{right:8%;}
+    .cat:after{left:8%; transform:rotate(-12deg);}
+
+    .eyes{
+      position:absolute;
+      left:0; right:0;
+      top:38%;
+      display:flex;
+      justify-content:space-evenly;
+      padding:0 14%;
+    }
+    .eye{
+      width:90px; height:90px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,.0) 0 30%, rgba(0,0,0,1) 32% 45%, rgba(255,77,109,.95) 48% 62%, rgba(255,77,109,.2) 70%),
+        radial-gradient(circle at 45% 35%, rgba(255,255,255,.95), rgba(255,255,255,0) 55%);
+      border-radius:999px;
+      box-shadow: 0 0 40px rgba(255,77,109,.45);
+      position:relative;
+    }
+    .eye:after{
+      content:"";
+      position:absolute;
+      left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      width:14px; height:44px;
+      background:rgba(0,0,0,.95);
+      border-radius:999px;
+    }
+
+    .mouth{
+      position:absolute;
+      left:50%;
+      top:62%;
+      transform:translateX(-50%);
+      width:180px; height:90px;
+      border-bottom:4px solid rgba(255,255,255,.10);
+      border-radius:0 0 200px 200px;
+      box-shadow:0 14px 60px rgba(0,0,0,.45);
+      opacity:.9;
+    }
+
+    .shake{animation:shake .25s linear infinite;}
+    @keyframes shake{
+      0%{transform:translate(0,0)}
+      25%{transform:translate(3px,-2px)}
+      50%{transform:translate(-3px,2px)}
+      75%{transform:translate(2px,3px)}
+      100%{transform:translate(0,0)}
+    }
+
+    #toast{
+      position:absolute;
+      left:50%;
+      bottom:16px;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,.65);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:999px;
+      padding:10px 14px;
+      color:var(--muted);
+      backdrop-filter: blur(10px);
+      display:none;
+      z-index:20;
+    }
+    #toast.show{display:block;}
+
+    kbd{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      border-bottom-width:2px;
+      padding:2px 6px;
+      border-radius:8px;
+      color:var(--text);
+      font-weight:700;
+      font-size:12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <header>
+      <div class="left">
+        <div class="badge">שלב: <strong id="stageLbl">1</strong>/7</div>
+        <div class="badge">עצים: <strong id="woodLbl">0</strong></div>
+      </div>
+      <div class="right">
+        <button id="btnRestart" title="התחל מחדש">התחל מחדש</button>
+        <button id="btnMute" title="השקט/הפעל סאונד">סאונד: ON</button>
+      </div>
+    </header>
+
+    <div id="gameArea">
+      <canvas id="c" tabindex="0"></canvas>
+
+      <div id="hud">
+        <h1 id="mission">חצוב 6 עצים כדי לסיים את השלב</h1>
+        <p id="flavor">יום רגוע ביער. שום דבר לא יכול להשתבש… נכון?</p>
+        <div class="row">
+          <div class="bar"><div class="fill" id="prog"></div></div>
+          <div class="tiny"><span id="needLbl">0</span>/<span id="goalLbl">0</span></div>
+        </div>
+      </div>
+
+      <div id="hint">
+        <div><b>שליטה:</b> תזוזה עם חצים <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> • מצלמה עם <b>עכבר</b> (לחץ על המסך כדי לנעול עכבר) • חציבה עם <kbd>E</kbd> או קליק</div>
+        <div style="margin-top:6px; color:var(--muted)">התקרב לעץ כדי לחצוב. ככל שמתקדמים—האווירה משתנה.</div>
+      </div>
+
+      <div id="overlay">
+        <div class="card">
+          <h2>החוטב והחתול</h2>
+          <div style="color:var(--muted); line-height:1.45">
+            משחק אינדי קצר: חצוב עצים כדי להתקדם בין שלבים.
+            בשלב מסוים… משהו קופץ.
+          </div>
+          <ul>
+            <li>מטרה בכל שלב: לחצוב את כמות העצים המבוקשת.</li>
+            <li>התקרב לעץ ולחץ <kbd>E</kbd> או קליק כדי לחצוב.</li>
+            <li>טיפ: שחק עם אוזניות 😉</li>
+          </ul>
+          <div class="actions">
+            <button id="btnStart">שחק</button>
+            <button id="btnSkip">דילוג לשלב 6 (בדיקה)</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="jumpscare" aria-hidden="true">
+        <div class="cat" id="cat">
+          <div class="eyes">
+            <div class="eye"></div>
+            <div class="eye"></div>
+          </div>
+          <div class="mouth"></div>
+        </div>
+      </div>
+
+      <div id="toast"> </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ===== Pixel-3D (Raycaster) – Undertale/Deltarune-ish inspiration =====
+  // Note: "Undertale/Deltarune style" here means chunky pixels + limited palette + snappy FX,
+  // not copying any specific art assets.
+
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+
+  const stageLbl = document.getElementById('stageLbl');
+  const woodLbl = document.getElementById('woodLbl');
+  const mission = document.getElementById('mission');
+  const flavor = document.getElementById('flavor');
+  const prog = document.getElementById('prog');
+  const needLbl = document.getElementById('needLbl');
+  const goalLbl = document.getElementById('goalLbl');
+
+  const overlay = document.getElementById('overlay');
+  const btnStart = document.getElementById('btnStart');
+  const btnSkip = document.getElementById('btnSkip');
+  const btnRestart = document.getElementById('btnRestart');
+  const btnMute = document.getElementById('btnMute');
+  const jumpscare = document.getElementById('jumpscare');
+  const cat = document.getElementById('cat');
+  const toast = document.getElementById('toast');
+
+  // --- Audio (WebAudio) ---
+  let audioCtx = null;
+  let muted = false;
+  function ensureAudio(){
+    if (muted) return null;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+  function beep({freq=440, dur=0.08, type='sine', gain=0.03}={}){
+    const ac = ensureAudio();
+    if (!ac) return;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g); g.connect(ac.destination);
+    o.start(); o.stop(ac.currentTime + dur);
+  }
+  function noiseBurst({dur=0.35, gain=0.22}={}){
+    const ac = ensureAudio();
+    if (!ac) return;
+    const bufferSize = Math.floor(ac.sampleRate * dur);
+    const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++) data[i] = (Math.random()*2 - 1);
+    const src = ac.createBufferSource();
+    src.buffer = buffer;
+    const g = ac.createGain();
+    g.gain.value = gain;
+    const filter = ac.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.value = 900;
+    src.connect(filter);
+    filter.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  }
+  function creepyChord(){
+    beep({freq:196, dur:0.12, gain:0.018, type:'triangle'});
+    beep({freq:207.65, dur:0.14, gain:0.016, type:'triangle'});
+    beep({freq:233.08, dur:0.10, gain:0.014, type:'triangle'});
+  }
+
+  // --- Low-res buffer for pixel look ---
+  const buf = document.createElement('canvas');
+  const bctx = buf.getContext('2d');
+
+  function resize(){
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    canvas.width  = Math.floor(canvas.clientWidth  * dpr);
+    canvas.height = Math.floor(canvas.clientHeight * dpr);
+
+    // internal resolution
+    const targetH = 200;
+    const aspect = canvas.width / canvas.height;
+    buf.height = targetH;
+    buf.width  = Math.max(240, Math.floor(targetH * aspect));
+
+    ctx.imageSmoothingEnabled = false;
+    bctx.imageSmoothingEnabled = false;
+  }
+  window.addEventListener('resize', resize);
+
+  // --- Stages ---
+  const STAGES = [
+    {goal:6,  title:'חצוב 6 עצים כדי לסיים את השלב',  text:'יום רגוע ביער. שום דבר לא יכול להשתבש… נכון?', mood:0},
+    {goal:7,  title:'חצוב 7 עצים',                 text:'השמש יורדת. יש משהו… מוזר באוויר.',            mood:1},
+    {goal:8,  title:'חצוב 8 עצים',                 text:'לילה ראשון. לפעמים נדמה שיש עיניים…',           mood:2},
+    {goal:9,  title:'חצוב 9 עצים',                 text:'היער מרגיש כמו לופ. אתה בטוח שאתה מתקדם?',      mood:3},
+    {goal:10, title:'חצוב 10 עצים',                text:'משהו מסתכל עליך. אל תמצמץ יותר מדי.',           mood:4},
+    {goal:6,  title:'חצוב 6 עצים',                 text:'שקט מוחלט. יותר מדי שקט.',                       mood:5},
+    {goal:1,  title:'חצוב עוד עץ אחד בלבד',        text:'הכל נראה… ריק. אולי זה נגמר?',                   mood:6},
+  ];
+
+  // --- Map / World (grid for raycasting) ---
+  const MAP_W = 28;
+  const MAP_H = 28;
+  let map = new Array(MAP_W*MAP_H).fill(0);
+
+  // tile ids: 0 empty, 1 wall/rock, 2 special dark rock
+  function idx(x,y){return y*MAP_W+x;}
+  function inb(x,y){return x>=0 && y>=0 && x<MAP_W && y<MAP_H;}
+  function cell(x,y){ if(!inb(x,y)) return 1; return map[idx(x,y)]|0; }
+
+  function generateMap(mood){
+    map.fill(0);
+    // borders
+    for (let x=0;x<MAP_W;x++){ map[idx(x,0)]=1; map[idx(x,MAP_H-1)]=1; }
+    for (let y=0;y<MAP_H;y++){ map[idx(0,y)]=1; map[idx(MAP_W-1,y)]=1; }
+
+    // random rocks
+    const rocks = 40 + mood*10;
+    for (let i=0;i<rocks;i++){
+      const x = 2 + (Math.random()*(MAP_W-4))|0;
+      const y = 2 + (Math.random()*(MAP_H-4))|0;
+      if ((Math.abs(x-14)+Math.abs(y-14)) < 5) continue;
+      map[idx(x,y)] = (Math.random() < 0.25 + mood*0.03) ? 2 : 1;
+    }
+  }
+
+  // --- Entities (trees) ---
+  let trees = [];
+  function spawnTrees(stage){
+    trees = [];
+    const n = Math.min(18 + stage*2, 30);
+    for (let i=0;i<n;i++){
+      let tries = 0;
+      while (tries++ < 200){
+        const x = 2 + Math.random()*(MAP_W-4);
+        const y = 2 + Math.random()*(MAP_H-4);
+        if (cell(x|0, y|0) !== 0) continue;
+        const dx = x-14, dy = y-14;
+        if (Math.hypot(dx,dy) < 3.5) continue;
+        trees.push({x, y, hp:3, alive:true});
+        break;
+      }
+    }
+  }
+
+  // --- Player (first person) ---
+  const player = {
+    x: 14.5,
+    y: 14.5,
+    a: 0,        // angle
+    fov: Math.PI/3,
+    speed: 2.5,
+    rot: 2.2,
+  };
+
+  // --- State ---
+  let stage = 0;
+  let stageWood = 0;
+  let totalWood = 0;
+  let running = false;
+  let flicker = 0;
+
+  // --- Controls ---
+  const keys = new Set();
+  window.addEventListener('keydown', (e) => {
+    if (!running) return;
+    const k = e.key.toLowerCase();
+    if (['e','arrowup','arrowdown','arrowleft','arrowright'].includes(k)) e.preventDefault();
+    // keep only arrows + E for gameplay
+    if (k === 'e' || k.startsWith('arrow')) keys.add(k);
+    if (k === 'e') tryChop();
+  });
+  window.addEventListener('keyup', (e) => {
+    const k = e.key.toLowerCase();
+    if (k === 'e' || k.startsWith('arrow')) keys.delete(k);
+  });
+  // Click: chop + (try) pointer-lock for mouse look
+  canvas.addEventListener('mousedown', (e) => {
+    if (!running) return;
+    canvas.focus();
+    tryChop();
+
+    // try pointer lock (best experience)
+    if (document.pointerLockElement !== canvas) {
+      try { canvas.requestPointerLock(); } catch {}
+    }
+
+    // fallback: click+drag mouse-look (if pointer lock is blocked in this environment)
+    mouse.dragging = true;
+    mouse.lastX = e.clientX;
+  });
+  window.addEventListener('mouseup', () => { mouse.dragging = false; });
+
+  // Mouse look (pointer lock + fallback drag)
+  const mouse = {locked:false, dragging:false, lastX:0, sens:0.0024};
+  document.addEventListener('pointerlockchange', () => {
+    mouse.locked = (document.pointerLockElement === canvas);
+    if (mouse.locked) {
+      showToast('העכבר ננעל – הזז כדי להסתובב (ESC לשחרור)', 1600);
+      mouse.dragging = false;
+    }
+  });
+  document.addEventListener('pointerlockerror', () => {
+    // some previews/iframes block pointer lock
+    showToast('נעילת עכבר חסומה כאן — הסתובב עם קליק+גרירה', 2000);
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!running) return;
+    if (mouse.locked) {
+      player.a += e.movementX * mouse.sens;
+      return;
+    }
+    if (mouse.dragging) {
+      const dx = (e.clientX - mouse.lastX);
+      mouse.lastX = e.clientX;
+      player.a += dx * mouse.sens;
+    }
+  });
+
+  function showToast(msg, ms=1400){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>toast.classList.remove('show'), ms);
+  }
+
+  function setStage(n){
+    stage = Math.max(0, Math.min(STAGES.length-1, n));
+    stageWood = 0;
+    const s = STAGES[stage];
+    stageLbl.textContent = String(stage+1);
+    mission.textContent = s.title;
+    flavor.textContent = s.text;
+    goalLbl.textContent = String(s.goal);
+    needLbl.textContent = String(stageWood);
+    prog.style.width = '0%';
+
+    // regenerate
+    generateMap(s.mood);
+    spawnTrees(stage);
+
+    // reposition & angle
+    player.x = 14.5;
+    player.y = 14.5;
+    player.a = (Math.random()*Math.PI*2);
+
+    // cues
+    if (stage === 1) beep({freq:330, dur:0.08, gain:0.02, type:'sine'});
+    if (stage === 2) beep({freq:220, dur:0.08, gain:0.02, type:'triangle'});
+    if (stage === 3) creepyChord();
+    if (stage === 4) creepyChord();
+    if (stage === 5) beep({freq:110, dur:0.12, gain:0.025, type:'sawtooth'});
+  }
+
+  function nextStage(){
+    if (stage >= STAGES.length-1){
+      win();
+      return;
+    }
+    setStage(stage+1);
+    if (stage === 6) showToast('…עוד צעד אחד', 1600);
+  }
+
+  function win(){
+    running = false;
+    overlay.classList.remove('hidden');
+    overlay.querySelector('h2').textContent = 'סיום';
+    overlay.querySelector('div').innerHTML = '<div style="color:var(--muted); line-height:1.55">היער שקט. יותר מדי שקט.<br>אתה מחזיק עץ אחד ביד…<br><b style="color:var(--accent)">ואתה לא בטוח אם החתול נעלם.</b></div>';
+    overlay.querySelector('ul').innerHTML = '<li>רוצה עוד? אפשר להוסיף רדיפות, משימות, וסופים שונים.</li>';
+    overlay.querySelector('.actions').innerHTML = '<button id="btnAgain">שחק שוב</button>';
+    document.getElementById('btnAgain').onclick = () => location.reload();
+  }
+
+  // --- Chopping ---
+  function nearestTree(){
+    let best=null, bestD=1e9;
+    for (const t of trees){
+      if (!t.alive) continue;
+      const d = Math.hypot(t.x - player.x, t.y - player.y);
+      if (d < bestD){ bestD=d; best=t; }
+    }
+    return {tree:best, d:bestD};
+  }
+
+  function microScare(){
+    flicker = 0.22;
+    creepyChord();
+    showToast('…ראית את זה?', 1200);
+  }
+
+  function doJumpscare(){
+    if (!running) return;
+    if (jumpscare.classList.contains('show')) return;
+    jumpscare.classList.add('show');
+    cat.classList.add('shake');
+    noiseBurst({dur:0.42, gain:0.26});
+    beep({freq: 55, dur:0.20, gain:0.05, type:'sawtooth'});
+    beep({freq: 110, dur:0.28, gain:0.035, type:'square'});
+    setTimeout(()=>{
+      cat.classList.remove('shake');
+      jumpscare.classList.remove('show');
+    }, 680);
+  }
+
+  function tryChop(){
+    const {tree, d} = nearestTree();
+    if (!tree) return;
+    if (d > 1.1){
+      beep({freq:210, dur:0.05, gain:0.012, type:'sine'});
+      showToast('תתקרב לעץ כדי לחצוב');
+      return;
+    }
+
+    tree.hp -= 1;
+    // chop sound
+    beep({freq: 260 + Math.random()*40, dur:0.06, gain:0.02, type:'triangle'});
+    beep({freq: 140 + Math.random()*25, dur:0.08, gain:0.015, type:'sine'});
+
+    const mood = STAGES[stage].mood;
+    if (stage >= 2 && Math.random() < 0.12){
+      // distant meow-ish
+      beep({freq: 740 + Math.random()*120, dur:0.03, gain:0.008, type:'sine'});
+      beep({freq: 420 + Math.random()*80, dur:0.06, gain:0.010, type:'sine'});
+    }
+
+    if (tree.hp <= 0){
+      tree.alive = false;
+      stageWood += 1;
+      totalWood += 1;
+      woodLbl.textContent = String(totalWood);
+      needLbl.textContent = String(stageWood);
+      const goal = STAGES[stage].goal;
+      prog.style.width = (Math.min(1, stageWood/goal)*100).toFixed(0) + '%';
+
+      if (stage === 4 && stageWood === Math.max(3, (goal*0.5)|0)) microScare();
+
+      // stage 6 (index 5) full jumpscare
+      if (stage === 5 && stageWood === 3) doJumpscare();
+
+      if (stageWood >= goal) nextStage();
+    }
+  }
+
+  // --- Movement / Collision ---
+  function isBlocked(nx, ny){
+    return cell(nx|0, ny|0) !== 0;
+  }
+  function move(dt){
+    const mood = STAGES[stage].mood;
+    const sp = player.speed * (1 - Math.min(0.10, mood*0.01));
+
+    let fwd = 0, str = 0;
+    // ONLY arrows move
+    if (keys.has('arrowup')) fwd += 1;
+    if (keys.has('arrowdown')) fwd -= 1;
+    if (keys.has('arrowleft')) str -= 1;
+    if (keys.has('arrowright')) str += 1;
+
+    // camera rotation comes from mouse (pointer lock), not keys
+
+    const ca = Math.cos(player.a), sa = Math.sin(player.a);
+    const dx = (ca * fwd + -sa * str) * sp * dt;
+    const dy = (sa * fwd +  ca * str) * sp * dt;
+
+    let nx = player.x + dx;
+    let ny = player.y + dy;
+
+    // simple collision: separate axes
+    if (!isBlocked(nx, player.y)) player.x = nx;
+    if (!isBlocked(player.x, ny)) player.y = ny;
+  }
+
+  // --- Raycasting render ---
+  const PALETTE = {
+    sky0: '#0f1a20', sky1: '#07090c',
+    flr0: '#0a0f0d', flr1: '#040505',
+    wall1: '#3a3f45', wall2: '#272b30',
+    wallDark1: '#1f2226', wallDark2: '#121416',
+    fog: 'rgba(0,0,0,0.55)',
+    accent: '#7ee2b8',
+    danger: '#ff4d6d'
+  };
+
+  function castRay(rx, ry, ra){
+    // DDA
+    let mapX = rx|0, mapY = ry|0;
+    const rayDirX = Math.cos(ra);
+    const rayDirY = Math.sin(ra);
+
+    const deltaDistX = Math.abs(1 / (rayDirX || 1e-9));
+    const deltaDistY = Math.abs(1 / (rayDirY || 1e-9));
+
+    let stepX, stepY;
+    let sideDistX, sideDistY;
+
+    if (rayDirX < 0) { stepX = -1; sideDistX = (rx - mapX) * deltaDistX; }
+    else { stepX = 1; sideDistX = (mapX + 1.0 - rx) * deltaDistX; }
+
+    if (rayDirY < 0) { stepY = -1; sideDistY = (ry - mapY) * deltaDistY; }
+    else { stepY = 1; sideDistY = (mapY + 1.0 - ry) * deltaDistY; }
+
+    let hit = 0;
+    let side = 0;
+    let tile = 1;
+    for (let i=0;i<80;i++){
+      if (sideDistX < sideDistY){
+        sideDistX += deltaDistX;
+        mapX += stepX;
+        side = 0;
+      } else {
+        sideDistY += deltaDistY;
+        mapY += stepY;
+        side = 1;
+      }
+      tile = cell(mapX, mapY);
+      if (tile !== 0){ hit = 1; break; }
+    }
+
+    let perpWallDist;
+    if (side === 0) perpWallDist = (mapX - rx + (1 - stepX) / 2) / (rayDirX || 1e-9);
+    else perpWallDist = (mapY - ry + (1 - stepY) / 2) / (rayDirY || 1e-9);
+
+    perpWallDist = Math.max(0.0001, perpWallDist);
+    return {dist: perpWallDist, side, tile};
+  }
+
+  // simple procedural tree sprite (pixel-art-ish)
+  const treeSprite = (() => {
+    const s = document.createElement('canvas');
+    s.width = 24; s.height = 32;
+    const g = s.getContext('2d');
+    g.imageSmoothingEnabled = false;
+
+    // canopy blocks
+    g.fillStyle = '#2b7f4a';
+    g.fillRect(6,4,12,10);
+    g.fillRect(4,8,16,10);
+    g.fillRect(6,14,12,8);
+
+    // shadow bits
+    g.fillStyle = '#1c5b35';
+    g.fillRect(12,8,8,10);
+    g.fillRect(10,14,10,8);
+
+    // trunk
+    g.fillStyle = '#7a5533';
+    g.fillRect(10,22,4,8);
+    g.fillRect(9,24,6,6);
+
+    // outline (undertale-like bold outline)
+    g.strokeStyle = '#0a0a0a';
+    g.lineWidth = 2;
+    g.strokeRect(4,8,16,14);
+    g.strokeRect(10,22,4,8);
+
+    return s;
+  })();
+
+  function render3D(){
+    const w = buf.width;
+    const h = buf.height;
+
+    const mood = STAGES[stage].mood;
+    const t = Math.min(1, mood/6);
+
+    // sky + floor (simple bands)
+    const sky = bctx.createLinearGradient(0,0,0,h*0.55);
+    sky.addColorStop(0, PALETTE.sky0);
+    sky.addColorStop(1, PALETTE.sky1);
+    bctx.fillStyle = sky;
+    bctx.fillRect(0,0,w,h);
+
+    const floor = bctx.createLinearGradient(0,h*0.55,0,h);
+    floor.addColorStop(0, PALETTE.flr0);
+    floor.addColorStop(1, PALETTE.flr1);
+    bctx.fillStyle = floor;
+    bctx.fillRect(0, (h*0.55)|0, w, h);
+
+    // walls
+    const zBuffer = new Float32Array(w);
+    for (let x=0;x<w;x++){
+      const camX = (2*x/w - 1);
+      const ra = player.a + camX * (player.fov/2);
+      const hit = castRay(player.x, player.y, ra);
+
+      // fisheye fix
+      const dist = hit.dist * Math.cos(ra - player.a);
+      zBuffer[x] = dist;
+
+      const wallH = Math.min(h, (h / (dist)) * 0.9);
+      const y0 = ((h - wallH) / 2) | 0;
+
+      const shade = Math.max(0, Math.min(1, 1 - dist/10));
+      const sideDark = hit.side ? 0.78 : 1.0;
+      const k = shade * sideDark;
+
+      const isDark = hit.tile === 2 || t > 0.7;
+      const c1 = isDark ? PALETTE.wallDark1 : PALETTE.wall1;
+      const c2 = isDark ? PALETTE.wallDark2 : PALETTE.wall2;
+
+      // draw a 1px column with a slight gradient (fake texture)
+      bctx.fillStyle = (k > 0.55) ? c1 : c2;
+      bctx.fillRect(x, y0, 1, wallH|0);
+
+      // outline-like edge for chunky vibe
+      if (x % 2 === 0){
+        bctx.fillStyle = 'rgba(0,0,0,0.30)';
+        bctx.fillRect(x, y0, 1, wallH|0);
+      }
+    }
+
+    // sprites (trees)
+    const sprites = [];
+    for (const tEnt of trees){
+      if (!tEnt.alive) continue;
+      const dx = tEnt.x - player.x;
+      const dy = tEnt.y - player.y;
+      const dist = Math.hypot(dx,dy);
+      if (dist > 18) continue;
+
+      const ang = Math.atan2(dy, dx) - player.a;
+      // wrap
+      let a = ang;
+      while (a < -Math.PI) a += Math.PI*2;
+      while (a >  Math.PI) a -= Math.PI*2;
+
+      if (Math.abs(a) > player.fov*0.75) continue;
+      sprites.push({dist, a, ent:tEnt});
+    }
+    sprites.sort((a,b)=>b.dist - a.dist);
+
+    for (const s of sprites){
+      const dist = Math.max(0.2, s.dist);
+      const size = Math.min(h*0.9, (h / dist) * 0.8);
+      const sx = ((w/2) * (1 + (s.a / (player.fov/2)))) - size/2;
+      const sy = (h/2) - size*0.55;
+
+      const x0 = sx|0;
+      const x1 = (sx + size)|0;
+      // simple occlusion with zBuffer
+      for (let x = x0; x < x1; x++){
+        if (x < 0 || x >= w) continue;
+        if (zBuffer[x] > dist - 0.05){
+          // draw full sprite (cheap: drawImage once and accept small overdraw)
+          // do it once when x==x0
+          bctx.drawImage(treeSprite, sx, sy, size, size*1.2);
+          break;
+        }
+      }
+
+      // interaction ring-ish (subtle)
+      if (dist < 1.6){
+        bctx.fillStyle = 'rgba(126,226,184,0.20)';
+        bctx.fillRect((w/2)|0, (h*0.72)|0, 2, 2);
+      }
+    }
+
+    // eye hints (as glowing dots) on later stages
+    if (stage >= 2){
+      const chance = 0.015 + t*0.02;
+      if (Math.random() < chance){
+        const ex = (Math.random()*w)|0;
+        const ey = (Math.random()*(h*0.45))|0;
+        bctx.fillStyle = 'rgba(255,77,109,0.85)';
+        bctx.fillRect(ex, ey, 2, 1);
+        bctx.fillRect(ex+3, ey, 2, 1);
+      }
+    }
+
+    // fog / vignette
+    bctx.fillStyle = `rgba(0,0,0,${0.10 + t*0.18})`;
+    bctx.fillRect(0,0,w,h);
+
+    // flicker
+    if (flicker > 0){
+      bctx.fillStyle = `rgba(255,255,255,${Math.min(0.10, flicker*0.5)})`;
+      bctx.fillRect(0,0,w,h);
+    }
+  }
+
+  function blit(){
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    // scale buffer to full canvas
+    ctx.drawImage(buf, 0,0, buf.width, buf.height, 0,0, canvas.width, canvas.height);
+  }
+
+  // --- Loop ---
+  let last = 0;
+  function loop(ts){
+    const dt = Math.min(0.05, (ts - last)/1000 || 0);
+    last = ts;
+
+    if (running){
+      move(dt);
+      flicker = Math.max(0, flicker - dt);
+
+      // extra random tiny scares
+      if (stage === 5 && stageWood >= 2 && Math.random() < 0.006) doJumpscare();
+
+      render3D();
+      blit();
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  // --- UI wiring ---
+  btnStart.onclick = () => {
+    overlay.classList.add('hidden');
+    running = true;
+    ensureAudio();
+  };
+
+  btnSkip.onclick = () => {
+    overlay.classList.add('hidden');
+    running = true;
+    ensureAudio();
+    setStage(5);
+    showToast('דילגת לשלב 6');
+  };
+
+  btnRestart.onclick = () => location.reload();
+
+  btnMute.onclick = () => {
+    muted = !muted;
+    btnMute.textContent = muted ? 'סאונד: OFF' : 'סאונד: ON';
+    if (muted && audioCtx){ try{audioCtx.suspend();}catch{} }
+    if (!muted){ ensureAudio(); beep({freq:520, dur:0.06, gain:0.02, type:'sine'}); }
+  };
+
+  // init
+  resize();
+  setStage(0);
+  woodLbl.textContent = '0';
+  goalLbl.textContent = String(STAGES[0].goal);
+  needLbl.textContent = '0';
+  prog.style.width = '0%';
+
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
