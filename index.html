@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>החוטב והחתול</title>
+  <title>חוטב העופות</title>
   <style>
     :root{
       --bg:#0c1210;
@@ -96,101 +96,59 @@
     .card li{margin:6px 0}
     .card .actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
 
-    /* Jumpscare */
+    /* Jumpscare (friendly) */
     #jumpscare{
       position:absolute; inset:0;
       display:none;
       align-items:center;
       justify-content:center;
-      background:rgba(0,0,0,.88);
+      background:rgba(0,0,0,.55);
       z-index:50;
-    }
-    #jumpscare.show{display:flex; animation:flash .55s ease-out;}
-    @keyframes flash{
-      0%{transform:scale(1); filter:blur(0px)}
-      15%{transform:scale(1.05); filter:blur(0px)}
-      40%{transform:scale(1.02); filter:blur(1px)}
-      100%{transform:scale(1); filter:blur(0px)}
-    }
-
-    .cat{
-      width:min(560px, 86vw);
-      aspect-ratio: 1 / 1;
-      border-radius:28px;
-      background:
-        radial-gradient(circle at 50% 30%, rgba(255,255,255,.08), transparent 55%),
-        radial-gradient(circle at 35% 45%, rgba(255,255,255,.12), transparent 40%),
-        radial-gradient(circle at 65% 45%, rgba(255,255,255,.12), transparent 40%),
-        radial-gradient(circle at 50% 65%, rgba(255,255,255,.10), transparent 45%),
-        radial-gradient(circle at 50% 50%, rgba(0,0,0,.0), rgba(0,0,0,.85) 70%),
-        linear-gradient(180deg, rgba(20,10,10,.9), rgba(0,0,0,.95));
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow:0 30px 120px rgba(255,77,109,.18);
-      position:relative;
       overflow:hidden;
     }
-    .cat:before, .cat:after{
-      content:"";
-      position:absolute;
-      width:46%; height:46%;
-      top:-10%;
-      background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.75));
-      border:1px solid rgba(255,255,255,.10);
-      border-bottom:none;
-      border-radius:22px 22px 80px 80px;
-      transform:rotate(12deg);
-      filter:drop-shadow(0 20px 40px rgba(0,0,0,.45));
-      opacity:.95;
-    }
-    .cat:before{right:8%;}
-    .cat:after{left:8%; transform:rotate(-12deg);}
+    #jumpscare.show{display:flex; animation:flash .55s ease-out;}
 
-    .eyes{
-      position:absolute;
-      left:0; right:0;
-      top:38%;
-      display:flex;
-      justify-content:space-evenly;
-      padding:0 14%;
-    }
-    .eye{
-      width:90px; height:90px;
-      background:
-        radial-gradient(circle at 50% 50%, rgba(255,255,255,.0) 0 30%, rgba(0,0,0,1) 32% 45%, rgba(255,77,109,.95) 48% 62%, rgba(255,77,109,.2) 70%),
-        radial-gradient(circle at 45% 35%, rgba(255,255,255,.95), rgba(255,255,255,0) 55%);
-      border-radius:999px;
-      box-shadow: 0 0 40px rgba(255,77,109,.45);
+    #confetti{position:absolute; inset:0; width:100%; height:100%;}
+
+    .jwrap{
       position:relative;
-    }
-    .eye:after{
-      content:"";
-      position:absolute;
-      left:50%; top:50%;
-      transform:translate(-50%,-50%);
-      width:14px; height:44px;
-      background:rgba(0,0,0,.95);
-      border-radius:999px;
-    }
-
-    .mouth{
-      position:absolute;
-      left:50%;
-      top:62%;
-      transform:translateX(-50%);
-      width:180px; height:90px;
-      border-bottom:4px solid rgba(255,255,255,.10);
-      border-radius:0 0 200px 200px;
-      box-shadow:0 14px 60px rgba(0,0,0,.45);
-      opacity:.9;
+      width:min(560px, 90vw);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      background:rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:22px;
+      padding:14px;
+      backdrop-filter: blur(10px);
+      box-shadow:0 20px 80px rgba(0,0,0,.35);
     }
 
-    .shake{animation:shake .25s linear infinite;}
-    @keyframes shake{
-      0%{transform:translate(0,0)}
-      25%{transform:translate(3px,-2px)}
-      50%{transform:translate(-3px,2px)}
-      75%{transform:translate(2px,3px)}
-      100%{transform:translate(0,0)}
+    #bigiImg{
+      width:100%;
+      max-width:520px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      image-rendering:auto;
+      display:block;
+    }
+
+    .jtxt{
+      font-weight:900;
+      font-size:18px;
+      color:var(--text);
+      text-align:center;
+      padding:8px 10px;
+      border-radius:14px;
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.10);
+    }
+
+    @keyframes flash{
+      0%{transform:scale(1); filter:blur(0px)}
+      20%{transform:scale(1.02); filter:blur(0px)}
+      100%{transform:scale(1); filter:blur(0px)}
     }
 
     #toast{
@@ -227,7 +185,7 @@
     <header>
       <div class="left">
         <div class="badge">שלב: <strong id="stageLbl">1</strong>/7</div>
-        <div class="badge">עצים: <strong id="woodLbl">0</strong></div>
+        <div class="badge">עופות: <strong id="woodLbl">0</strong></div>
       </div>
       <div class="right">
         <button id="btnRestart" title="התחל מחדש">התחל מחדש</button>
@@ -239,8 +197,8 @@
       <canvas id="c" tabindex="0"></canvas>
 
       <div id="hud">
-        <h1 id="mission">חצוב 6 עצים כדי לסיים את השלב</h1>
-        <p id="flavor">יום רגוע ביער. שום דבר לא יכול להשתבש… נכון?</p>
+        <h1 id="mission">חטוב 6 עופות כדי לסיים את השלב</h1>
+        <p id="flavor">יום רגוע בשדה. אתה רק… חוטב עוף.</p>
         <div class="row">
           <div class="bar"><div class="fill" id="prog"></div></div>
           <div class="tiny"><span id="needLbl">0</span>/<span id="goalLbl">0</span></div>
@@ -249,35 +207,33 @@
 
       <div id="hint">
         <div><b>שליטה:</b> תזוזה עם חצים <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> • מצלמה עם <b>עכבר</b> (לחץ על המסך כדי לנעול עכבר) • חציבה עם <kbd>E</kbd> או קליק</div>
-        <div style="margin-top:6px; color:var(--muted)">התקרב לעץ כדי לחצוב. ככל שמתקדמים—האווירה משתנה.</div>
+        <div style="margin-top:6px; color:var(--muted)">התקרב לעוף כדי לחטוב. ככל שמתקדמים—האווירה משתנה.</div>
       </div>
 
       <div id="overlay">
         <div class="card">
-          <h2>החוטב והחתול</h2>
+          <h2>חוטב העופות</h2>
           <div style="color:var(--muted); line-height:1.45">
-            משחק אינדי קצר: חצוב עצים כדי להתקדם בין שלבים.
+            משחק אינדי קצר: לחטוב עוף כדי להתקדם בין שלבים.
             בשלב מסוים… משהו קופץ.
           </div>
           <ul>
-            <li>מטרה בכל שלב: לחצוב את כמות העצים המבוקשת.</li>
-            <li>התקרב לעץ ולחץ <kbd>E</kbd> או קליק כדי לחצוב.</li>
+            <li>מטרה בכל שלב: לחטוב את כמות העופות המבוקשת.</li>
+            <li>התקרב לעוף ולחץ <kbd>E</kbd> או קליק כדי לחטוב.</li>
             <li>טיפ: שחק עם אוזניות 😉</li>
           </ul>
           <div class="actions">
             <button id="btnStart">שחק</button>
-            <button id="btnSkip">דילוג לשלב 6 (בדיקה)</button>
+            
           </div>
         </div>
       </div>
 
       <div id="jumpscare" aria-hidden="true">
-        <div class="cat" id="cat">
-          <div class="eyes">
-            <div class="eye"></div>
-            <div class="eye"></div>
-          </div>
-          <div class="mouth"></div>
+        <canvas id="confetti"></canvas>
+        <div class="jwrap">
+          <img id="bigiImg" alt="מזל טוב ביגי" src="bigi.png" />
+          <div class="jtxt">מזל טוב ביגי אוהב 💚</div>
         </div>
       </div>
 
@@ -304,11 +260,11 @@
 
   const overlay = document.getElementById('overlay');
   const btnStart = document.getElementById('btnStart');
-  const btnSkip = document.getElementById('btnSkip');
-  const btnRestart = document.getElementById('btnRestart');
+    const btnRestart = document.getElementById('btnRestart');
   const btnMute = document.getElementById('btnMute');
   const jumpscare = document.getElementById('jumpscare');
-  const cat = document.getElementById('cat');
+  const confettiCanvas = document.getElementById('confetti');
+  const bigiImg = document.getElementById('bigiImg');
   const toast = document.getElementById('toast');
 
   // --- Audio (WebAudio) ---
@@ -330,25 +286,6 @@
     g.gain.value = gain;
     o.connect(g); g.connect(ac.destination);
     o.start(); o.stop(ac.currentTime + dur);
-  }
-  function noiseBurst({dur=0.35, gain=0.22}={}){
-    const ac = ensureAudio();
-    if (!ac) return;
-    const bufferSize = Math.floor(ac.sampleRate * dur);
-    const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i=0;i<bufferSize;i++) data[i] = (Math.random()*2 - 1);
-    const src = ac.createBufferSource();
-    src.buffer = buffer;
-    const g = ac.createGain();
-    g.gain.value = gain;
-    const filter = ac.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.value = 900;
-    src.connect(filter);
-    filter.connect(g);
-    g.connect(ac.destination);
-    src.start();
   }
   function creepyChord(){
     beep({freq:196, dur:0.12, gain:0.018, type:'triangle'});
@@ -378,13 +315,13 @@
 
   // --- Stages ---
   const STAGES = [
-    {goal:6,  title:'חצוב 6 עצים כדי לסיים את השלב',  text:'יום רגוע ביער. שום דבר לא יכול להשתבש… נכון?', mood:0},
-    {goal:7,  title:'חצוב 7 עצים',                 text:'השמש יורדת. יש משהו… מוזר באוויר.',            mood:1},
-    {goal:8,  title:'חצוב 8 עצים',                 text:'לילה ראשון. לפעמים נדמה שיש עיניים…',           mood:2},
-    {goal:9,  title:'חצוב 9 עצים',                 text:'היער מרגיש כמו לופ. אתה בטוח שאתה מתקדם?',      mood:3},
-    {goal:10, title:'חצוב 10 עצים',                text:'משהו מסתכל עליך. אל תמצמץ יותר מדי.',           mood:4},
-    {goal:6,  title:'חצוב 6 עצים',                 text:'שקט מוחלט. יותר מדי שקט.',                       mood:5},
-    {goal:1,  title:'חצוב עוד עץ אחד בלבד',        text:'הכל נראה… ריק. אולי זה נגמר?',                   mood:6},
+    {goal:6,  title:'חטוב 6 עופות כדי לסיים את השלב',  text:'יום רגוע בשדה. אתה רק… חוטב עוף.',                              mood:0},
+    {goal:7,  title:'חטוב 7 עופות',                 text:'השמש יורדת. פתאום שומעים משהו רחוק…',                            mood:1},
+    {goal:8,  title:'חטוב 8 עופות',                 text:'לילה ראשון. אתה מרגיש שמסתכלים עליך.',                           mood:2},
+    {goal:9,  title:'חטוב 9 עופות',                 text:'הכל מתחיל להחשיך. כל צעד נשמע חזק יותר.',                         mood:3},
+    {goal:10, title:'חטוב 10 עופות',                text:'האוויר כבד. פעימות לב… קרובות.',                                  mood:4},
+    {goal:6,  title:'חטוב 6 עופות',                 text:'זה הפיק. חושך. נשימה. ואתה ממשיך…',                               mood:5},
+    {goal:1,  title:'חטוב עוד עוף אחד בלבד',        text:'ואז—הכל נהיה טוב.',                                                mood:6},
   ];
 
   // --- Map / World (grid for raycasting) ---
@@ -399,17 +336,37 @@
 
   function generateMap(mood){
     map.fill(0);
-    // borders
+
+    // borders (watermelon walls)
     for (let x=0;x<MAP_W;x++){ map[idx(x,0)]=1; map[idx(x,MAP_H-1)]=1; }
     for (let y=0;y<MAP_H;y++){ map[idx(0,y)]=1; map[idx(MAP_W-1,y)]=1; }
 
-    // random rocks
+    // random walls
     const rocks = 40 + mood*10;
     for (let i=0;i<rocks;i++){
       const x = 2 + (Math.random()*(MAP_W-4))|0;
       const y = 2 + (Math.random()*(MAP_H-4))|0;
       if ((Math.abs(x-14)+Math.abs(y-14)) < 5) continue;
-      map[idx(x,y)] = (Math.random() < 0.25 + mood*0.03) ? 2 : 1;
+      map[idx(x,y)] = 1;
+    }
+
+    // 1 out of ~80 wall tiles gets graffiti (tile id 3)
+    // (we select from existing wall cells so it actually appears)
+    let walls = 0;
+    for (let y=1;y<MAP_H-1;y++){
+      for (let x=1;x<MAP_W-1;x++){
+        if (map[idx(x,y)] === 1) walls++;
+      }
+    }
+    const graffitiCount = Math.max(1, Math.round(walls / 80));
+    let placed = 0;
+    let guard = 0;
+    while (placed < graffitiCount && guard++ < 5000){
+      const x = 1 + (Math.random()*(MAP_W-2))|0;
+      const y = 1 + (Math.random()*(MAP_H-2))|0;
+      if (map[idx(x,y)] !== 1) continue;
+      map[idx(x,y)] = 3;
+      placed++;
     }
   }
 
@@ -448,6 +405,123 @@
   let totalWood = 0;
   let running = false;
   let flicker = 0;
+
+  // Flying buckets (fast, bird-like)
+  const flyers = [];
+  let flySpawn = 0;
+
+  // ambience timing
+  let heartT = 0;
+  let stepT = 0;
+  let breathT = 0;
+
+  function stageIntensity(){
+    // 0..1 ramp to stage 6 peak (index 5)
+    return Math.max(0, Math.min(1, stage / 5));
+  }
+
+  function heartbeat(level){
+    // soft double-thump
+    const base = 60 + level*45; // bpm-ish
+    const interval = 60 / base;
+    // thump 1
+    beep({freq: 90 - level*10, dur:0.05, gain:0.010 + level*0.020, type:'sine'});
+    beep({freq: 55 - level*6,  dur:0.06, gain:0.008 + level*0.016, type:'triangle'});
+    // thump 2 (slightly after)
+    setTimeout(()=>{
+      beep({freq: 100 - level*10, dur:0.04, gain:0.008 + level*0.018, type:'sine'});
+      beep({freq: 60 - level*6,  dur:0.05, gain:0.006 + level*0.014, type:'triangle'});
+    }, 120);
+    return interval;
+  }
+
+  function softStep(level){
+    const ac = ensureAudio();
+    if (!ac) return;
+    const dur = 0.03;
+    const bufferSize = Math.floor(ac.sampleRate * dur);
+    const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++) data[i] = (Math.random()*2 - 1) * 0.7;
+    const src = ac.createBufferSource();
+    src.buffer = buffer;
+    const f = ac.createBiquadFilter();
+    f.type = 'lowpass';
+    f.frequency.value = 380 + level*120;
+    const g = ac.createGain();
+    g.gain.value = 0.010 + level*0.018;
+    src.connect(f); f.connect(g); g.connect(ac.destination);
+    src.start();
+  }
+
+  function softBreath(level){
+    const ac = ensureAudio();
+    if (!ac) return;
+    const dur = 0.18;
+    const bufferSize = Math.floor(ac.sampleRate * dur);
+    const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++) data[i] = (Math.random()*2 - 1);
+    const src = ac.createBufferSource();
+    src.buffer = buffer;
+    const f = ac.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.value = 900;
+    f.Q.value = 0.6;
+    const g = ac.createGain();
+    g.gain.value = 0.004 + level*0.010;
+    src.connect(f); f.connect(g); g.connect(ac.destination);
+    src.start();
+  }
+
+  // confetti
+  function runConfetti(ms=900){
+    const c = confettiCanvas;
+    const r = c.getBoundingClientRect();
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    c.width = Math.floor(r.width * dpr);
+    c.height = Math.floor(r.height * dpr);
+    const g = c.getContext('2d');
+    g.imageSmoothingEnabled = false;
+
+    const parts = [];
+    const N = 120;
+    for (let i=0;i<N;i++){
+      parts.push({
+        x: Math.random()*c.width,
+        y: -Math.random()*c.height*0.3,
+        vx: (Math.random()*2-1) * 120 * dpr,
+        vy: (60 + Math.random()*220) * dpr,
+        r: 2 + (Math.random()*4)|0,
+        t: Math.random()*Math.PI*2,
+        vt: (Math.random()*2-1) * 6,
+      });
+    }
+
+    const t0 = performance.now();
+    function frame(now){
+      const dt = Math.min(0.05, (now - (frame._p||now))/1000);
+      frame._p = now;
+      const elapsed = now - t0;
+      g.clearRect(0,0,c.width,c.height);
+
+      for (const p of parts){
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.t += p.vt * dt;
+        if (p.y > c.height + 20*dpr) p.y = -10*dpr;
+        if (p.x < -20*dpr) p.x = c.width + 20*dpr;
+        if (p.x > c.width + 20*dpr) p.x = -20*dpr;
+
+        const s = Math.sin(p.t);
+        g.fillStyle = (s>0.5) ? 'rgba(255,74,106,0.9)' : (s<-0.5) ? 'rgba(43,255,122,0.9)' : 'rgba(255,255,255,0.9)';
+        g.fillRect(p.x, p.y, p.r, p.r);
+      }
+
+      if (elapsed < ms) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
 
   // --- Controls ---
   const keys = new Set();
@@ -554,7 +628,7 @@
     running = false;
     overlay.classList.remove('hidden');
     overlay.querySelector('h2').textContent = 'סיום';
-    overlay.querySelector('div').innerHTML = '<div style="color:var(--muted); line-height:1.55">היער שקט. יותר מדי שקט.<br>אתה מחזיק עץ אחד ביד…<br><b style="color:var(--accent)">ואתה לא בטוח אם החתול נעלם.</b></div>';
+    overlay.querySelector('div').innerHTML = '<div style="color:var(--muted); line-height:1.55">סיימת לחטוב עוף.<br>החושך נעלם… והכל בסדר.<br><b style="color:var(--accent)">מזל טוב ביגי 💚</b></div>';
     overlay.querySelector('ul').innerHTML = '<li>רוצה עוד? אפשר להוסיף רדיפות, משימות, וסופים שונים.</li>';
     overlay.querySelector('.actions').innerHTML = '<button id="btnAgain">שחק שוב</button>';
     document.getElementById('btnAgain').onclick = () => location.reload();
@@ -580,23 +654,27 @@
   function doJumpscare(){
     if (!running) return;
     if (jumpscare.classList.contains('show')) return;
+
+    // friendly confetti + photo (not loud)
     jumpscare.classList.add('show');
-    cat.classList.add('shake');
-    noiseBurst({dur:0.42, gain:0.26});
-    beep({freq: 55, dur:0.20, gain:0.05, type:'sawtooth'});
-    beep({freq: 110, dur:0.28, gain:0.035, type:'square'});
+
+    // gentle "party pop" (soft)
+    beep({freq: 740, dur:0.05, gain:0.012, type:'sine'});
+    beep({freq: 520, dur:0.08, gain:0.010, type:'triangle'});
+
+    runConfetti(900);
+
     setTimeout(()=>{
-      cat.classList.remove('shake');
       jumpscare.classList.remove('show');
-    }, 680);
+    }, 1200);
   }
 
   function tryChop(){
     const {tree, d} = nearestTree();
     if (!tree) return;
-    if (d > 1.1){
+    if (d > 1.6){
       beep({freq:210, dur:0.05, gain:0.012, type:'sine'});
-      showToast('תתקרב לעץ כדי לחצוב');
+      showToast('תתקרב לעוף כדי לחטוב');
       return;
     }
 
@@ -661,11 +739,20 @@
 
   // --- Raycasting render ---
   const PALETTE = {
-    sky0: '#0f1a20', sky1: '#07090c',
-    flr0: '#0a0f0d', flr1: '#040505',
-    wall1: '#3a3f45', wall2: '#272b30',
-    wallDark1: '#1f2226', wallDark2: '#121416',
-    fog: 'rgba(0,0,0,0.55)',
+    // bright silly world
+    skyTop: '#66c7ff',
+    skyBot: '#1c6cff',
+    grassTop: '#2bff7a',
+    grassBot: '#0aa84a',
+
+    // watermelon wall (rind + flesh)
+    wmRind1: '#1e7a3e',
+    wmRind2: '#14552b',
+    wmFlesh1: '#ff4a6a',
+    wmFlesh2: '#d92b4e',
+    seed: '#1a1a1a',
+
+    fog: 'rgba(0,0,0,0.18)',
     accent: '#7ee2b8',
     danger: '#ff4d6d'
   };
@@ -713,34 +800,72 @@
     return {dist: perpWallDist, side, tile};
   }
 
-  // simple procedural tree sprite (pixel-art-ish)
-  const treeSprite = (() => {
+  // "tree" sprite becomes FRIED CHICKEN (drumstick) sitting on the ground
+  const chickenSprite = (() => {
     const s = document.createElement('canvas');
-    s.width = 24; s.height = 32;
+    s.width = 28; s.height = 28;
     const g = s.getContext('2d');
     g.imageSmoothingEnabled = false;
 
-    // canopy blocks
-    g.fillStyle = '#2b7f4a';
-    g.fillRect(6,4,12,10);
-    g.fillRect(4,8,16,10);
-    g.fillRect(6,14,12,8);
+    // outline
+    g.fillStyle = '#0a0a0a';
+    g.fillRect(6,8,18,16);
 
-    // shadow bits
-    g.fillStyle = '#1c5b35';
-    g.fillRect(12,8,8,10);
-    g.fillRect(10,14,10,8);
+    // meat
+    g.fillStyle = '#f5a623';
+    g.fillRect(8,10,14,12);
+    g.fillStyle = '#d98212';
+    g.fillRect(14,12,8,10);
 
-    // trunk
-    g.fillStyle = '#7a5533';
-    g.fillRect(10,22,4,8);
-    g.fillRect(9,24,6,6);
+    // crispy bits
+    g.fillStyle = '#ffcf5a';
+    g.fillRect(9,11,3,2);
+    g.fillRect(11,14,2,2);
+    g.fillRect(10,18,3,2);
 
-    // outline (undertale-like bold outline)
+    // bone
+    g.fillStyle = '#f2f2f2';
+    g.fillRect(5,15,4,4);
+    g.fillRect(4,14,2,2);
+    g.fillRect(4,19,2,2);
+
+    // thicker outline around
     g.strokeStyle = '#0a0a0a';
     g.lineWidth = 2;
-    g.strokeRect(4,8,16,14);
-    g.strokeRect(10,22,4,8);
+    g.strokeRect(7,9,16,14);
+
+    return s;
+  })();
+
+  // flying bucket (generic "KFC-ish" without logos)
+  const bucketSprite = (() => {
+    const s = document.createElement('canvas');
+    s.width = 22; s.height = 22;
+    const g = s.getContext('2d');
+    g.imageSmoothingEnabled = false;
+
+    // outline
+    g.fillStyle = '#0a0a0a';
+    g.fillRect(5,6,12,14);
+
+    // bucket body
+    g.fillStyle = '#f7f7f7';
+    g.fillRect(6,8,10,11);
+
+    // red stripes
+    g.fillStyle = '#ff3b3b';
+    g.fillRect(7,9,2,9);
+    g.fillRect(11,9,2,9);
+    g.fillRect(15,9,1,9);
+
+    // rim
+    g.fillStyle = '#dcdcdc';
+    g.fillRect(6,7,10,2);
+
+    // wings (tiny)
+    g.fillStyle = '#ffffff';
+    g.fillRect(2,10,3,3);
+    g.fillRect(17,10,3,3);
 
     return s;
   })();
@@ -752,21 +877,71 @@
     const mood = STAGES[stage].mood;
     const t = Math.min(1, mood/6);
 
-    // sky + floor (simple bands)
+    // SKY
     const sky = bctx.createLinearGradient(0,0,0,h*0.55);
-    sky.addColorStop(0, PALETTE.sky0);
-    sky.addColorStop(1, PALETTE.sky1);
+    sky.addColorStop(0, PALETTE.skyTop);
+    sky.addColorStop(1, PALETTE.skyBot);
     bctx.fillStyle = sky;
     bctx.fillRect(0,0,w,h);
 
+    // clouds (more "realistic" but still pixel)
+    bctx.globalAlpha = 0.85;
+    for (let i=0;i<6;i++){
+      const baseX = ((i*85 + (performance.now()*0.012)) % (w+160)) - 80;
+      const baseY = 16 + i*7;
+
+      // shadow
+      bctx.fillStyle = 'rgba(0,0,0,0.12)';
+      bctx.fillRect(baseX+8,  baseY+8, 30, 10);
+      bctx.fillRect(baseX+28, baseY+4, 34, 12);
+      bctx.fillRect(baseX+52, baseY+8, 36, 10);
+
+      // body
+      bctx.fillStyle = 'rgba(255,255,255,0.82)';
+      bctx.fillRect(baseX,    baseY+6, 34, 12);
+      bctx.fillRect(baseX+20, baseY+2, 40, 16);
+      bctx.fillRect(baseX+50, baseY+6, 44, 12);
+
+      // highlight
+      bctx.fillStyle = 'rgba(255,255,255,0.35)';
+      bctx.fillRect(baseX+24, baseY+4, 18, 6);
+      bctx.fillRect(baseX+56, baseY+8, 16, 5);
+    }
+    bctx.globalAlpha = 1;
+
+    // GRASS
     const floor = bctx.createLinearGradient(0,h*0.55,0,h);
-    floor.addColorStop(0, PALETTE.flr0);
-    floor.addColorStop(1, PALETTE.flr1);
+    floor.addColorStop(0, PALETTE.grassTop);
+    floor.addColorStop(1, PALETTE.grassBot);
     bctx.fillStyle = floor;
     bctx.fillRect(0, (h*0.55)|0, w, h);
 
-    // walls
+    // grass strokes (painted look)
+    bctx.globalAlpha = 0.18;
+    for (let i=0;i<90;i++){
+      const gx = (Math.random()*w)|0;
+      const gy = ((h*0.60) + Math.random()*(h*0.38))|0;
+      const len = 2 + (Math.random()*4)|0;
+      bctx.fillStyle = (Math.random() < 0.5) ? 'rgba(0,0,0,0.20)' : 'rgba(255,255,255,0.10)';
+      bctx.fillRect(gx, gy, 1, len);
+    }
+    bctx.globalAlpha = 1;
+
+    // painted clumps
+    bctx.globalAlpha = 0.10;
+    bctx.fillStyle = '#067a3a';
+    for (let i=0;i<18;i++){
+      const gx = (Math.random()*w)|0;
+      const gy = ((h*0.62) + Math.random()*(h*0.34))|0;
+      bctx.fillRect(gx, gy, 10, 3);
+      bctx.fillRect(gx+3, gy-2, 7, 2);
+    }
+    bctx.globalAlpha = 1;
+
+    // WALLS (watermelon)
     const zBuffer = new Float32Array(w);
+    const graffitiCols = [];
+
     for (let x=0;x<w;x++){
       const camX = (2*x/w - 1);
       const ra = player.a + camX * (player.fov/2);
@@ -776,29 +951,87 @@
       const dist = hit.dist * Math.cos(ra - player.a);
       zBuffer[x] = dist;
 
-      const wallH = Math.min(h, (h / (dist)) * 0.9);
+      const wallH = Math.min(h, (h / (dist)) * 0.95);
       const y0 = ((h - wallH) / 2) | 0;
 
-      const shade = Math.max(0, Math.min(1, 1 - dist/10));
-      const sideDark = hit.side ? 0.78 : 1.0;
+      // shade by distance
+      const shade = Math.max(0, Math.min(1, 1 - dist/11));
+      const sideDark = hit.side ? 0.86 : 1.0;
       const k = shade * sideDark;
 
-      const isDark = hit.tile === 2 || t > 0.7;
-      const c1 = isDark ? PALETTE.wallDark1 : PALETTE.wall1;
-      const c2 = isDark ? PALETTE.wallDark2 : PALETTE.wall2;
+      // watermelon pattern: rind near bottom, flesh middle
+      const rindBand = (y0 + wallH - 4) | 0;
 
-      // draw a 1px column with a slight gradient (fake texture)
-      bctx.fillStyle = (k > 0.55) ? c1 : c2;
+      // flesh
+      bctx.fillStyle = (k > 0.55) ? PALETTE.wmFlesh1 : PALETTE.wmFlesh2;
       bctx.fillRect(x, y0, 1, wallH|0);
 
-      // outline-like edge for chunky vibe
+      // rind stripe at bottom
+      bctx.fillStyle = (k > 0.55) ? PALETTE.wmRind1 : PALETTE.wmRind2;
+      bctx.fillRect(x, rindBand, 1, Math.max(2, (wallH*0.12)|0));
+
+      // seeds sprinkled
+      if (((x + (dist*13)|0) % 11) === 0 && wallH > 18){
+        bctx.fillStyle = 'rgba(0,0,0,0.55)';
+        bctx.fillRect(x, y0 + ((wallH*0.40)|0), 1, 2);
+      }
+
+      // chunky outline vibe
       if (x % 2 === 0){
-        bctx.fillStyle = 'rgba(0,0,0,0.30)';
+        bctx.fillStyle = 'rgba(0,0,0,0.18)';
         bctx.fillRect(x, y0, 1, wallH|0);
+      }
+
+      // collect graffiti columns for tile id 3
+      if (hit.tile === 3){
+        graffitiCols.push({x, y0, wallH});
       }
     }
 
-    // sprites (trees)
+    // Graffiti: "מזל טוב ביגי" across segments
+    if (graffitiCols.length){
+      // group contiguous columns
+      const segs = [];
+      let s = null;
+      for (const c of graffitiCols){
+        if (!s || c.x !== s.x1 + 1){
+          if (s) segs.push(s);
+          s = {x0:c.x, x1:c.x, y0:c.y0, y1:c.y0 + c.wallH, wallH:c.wallH};
+        } else {
+          s.x1 = c.x;
+          s.y0 = Math.min(s.y0, c.y0);
+          s.y1 = Math.max(s.y1, c.y0 + c.wallH);
+          s.wallH = Math.max(s.wallH, c.wallH);
+        }
+      }
+      if (s) segs.push(s);
+
+      bctx.save();
+      bctx.textAlign = 'center';
+      bctx.textBaseline = 'middle';
+      // pixel-ish font
+      bctx.font = '10px ui-monospace, Menlo, Consolas, monospace';
+
+      for (const sg of segs){
+        const cx = ((sg.x0 + sg.x1) / 2);
+        const cy = (sg.y0 + sg.y1) / 2;
+
+        // spray shadow
+        bctx.fillStyle = 'rgba(0,0,0,0.55)';
+        bctx.fillText('מזל טוב ביגי', cx+1, cy+1);
+
+        // main spray
+        bctx.fillStyle = 'rgba(255,255,255,0.92)';
+        bctx.fillText('מזל טוב ביגי', cx, cy);
+
+        // pink spray highlight
+        bctx.fillStyle = 'rgba(255,74,106,0.85)';
+        bctx.fillText('מזל טוב ביגי', cx, cy-1);
+      }
+      bctx.restore();
+    }
+
+    // SPRITES (fried chicken on the ground)
     const sprites = [];
     for (const tEnt of trees){
       if (!tEnt.alive) continue;
@@ -808,45 +1041,71 @@
       if (dist > 18) continue;
 
       const ang = Math.atan2(dy, dx) - player.a;
-      // wrap
       let a = ang;
       while (a < -Math.PI) a += Math.PI*2;
       while (a >  Math.PI) a -= Math.PI*2;
 
       if (Math.abs(a) > player.fov*0.75) continue;
-      sprites.push({dist, a, ent:tEnt});
+      sprites.push({dist, a, kind:'chicken', ent:tEnt});
     }
+
+    // flying buckets
+    for (const b of flyers){
+      const dx = b.x - player.x;
+      const dy = b.y - player.y;
+      const dist = Math.hypot(dx,dy);
+      if (dist > 26) continue;
+
+      const ang = Math.atan2(dy, dx) - player.a;
+      let a = ang;
+      while (a < -Math.PI) a += Math.PI*2;
+      while (a >  Math.PI) a -= Math.PI*2;
+      if (Math.abs(a) > player.fov*0.85) continue;
+      sprites.push({dist, a, kind:'bucket', ent:b});
+    }
+
     sprites.sort((a,b)=>b.dist - a.dist);
 
     for (const s of sprites){
       const dist = Math.max(0.2, s.dist);
-      const size = Math.min(h*0.9, (h / dist) * 0.8);
+      const size = Math.min(h*0.9, (h / dist) * (s.kind==='bucket' ? 0.55 : 0.819));
       const sx = ((w/2) * (1 + (s.a / (player.fov/2)))) - size/2;
-      const sy = (h/2) - size*0.55;
+
+      // buckets appear in the SKY; chickens near ground
+      const sy = (s.kind==='bucket')
+        ? (h*0.20 - size*0.15)
+        : (h/2) - size*0.12;
 
       const x0 = sx|0;
       const x1 = (sx + size)|0;
-      // simple occlusion with zBuffer
+
+      // occlusion with zBuffer (simple)
       for (let x = x0; x < x1; x++){
         if (x < 0 || x >= w) continue;
         if (zBuffer[x] > dist - 0.05){
-          // draw full sprite (cheap: drawImage once and accept small overdraw)
-          // do it once when x==x0
-          bctx.drawImage(treeSprite, sx, sy, size, size*1.2);
+          if (s.kind==='bucket') bctx.drawImage(bucketSprite, sx, sy, size, size);
+          else bctx.drawImage(chickenSprite, sx, sy, size, size);
           break;
         }
       }
 
-      // interaction ring-ish (subtle)
-      if (dist < 1.6){
-        bctx.fillStyle = 'rgba(126,226,184,0.20)';
+      // crosshair hint when close to a chicken
+      if (s.kind==='chicken' && dist < 1.6){
+        bctx.fillStyle = 'rgba(0,0,0,0.28)';
         bctx.fillRect((w/2)|0, (h*0.72)|0, 2, 2);
+        bctx.fillStyle = 'rgba(126,226,184,0.30)';
+        bctx.fillRect(((w/2)+1)|0, ((h*0.72)+1)|0, 1, 1);
       }
     }
 
-    // eye hints (as glowing dots) on later stages
-    if (stage >= 2){
-      const chance = 0.015 + t*0.02;
+    // darkness ramp for stages 4-6 (index 3-5), peak at stage 6
+    const darkLevel = (stage >= 3 && stage <= 5)
+      ? (0.22 + (stage-3) * 0.20)   // stage4~0.22, stage5~0.42, stage6~0.62
+      : 0;
+
+    // eye hints only when it starts getting dark
+    if (stage >= 3){
+      const chance = 0.010 + Math.min(0.03, darkLevel*0.05);
       if (Math.random() < chance){
         const ex = (Math.random()*w)|0;
         const ey = (Math.random()*(h*0.45))|0;
@@ -856,13 +1115,19 @@
       }
     }
 
-    // fog / vignette
-    bctx.fillStyle = `rgba(0,0,0,${0.10 + t*0.18})`;
+    // dark overlay
+    if (darkLevel > 0){
+      bctx.fillStyle = `rgba(0,0,0,${darkLevel})`;
+      bctx.fillRect(0,0,w,h);
+    }
+
+    // light fog
+    bctx.fillStyle = PALETTE.fog;
     bctx.fillRect(0,0,w,h);
 
     // flicker
     if (flicker > 0){
-      bctx.fillStyle = `rgba(255,255,255,${Math.min(0.10, flicker*0.5)})`;
+      bctx.fillStyle = `rgba(255,255,255,${Math.min(0.12, flicker*0.55)})`;
       bctx.fillRect(0,0,w,h);
     }
   }
@@ -883,8 +1148,57 @@
       move(dt);
       flicker = Math.max(0, flicker - dt);
 
-      // extra random tiny scares
-      if (stage === 5 && stageWood >= 2 && Math.random() < 0.006) doJumpscare();
+      // ambience ramps up each level until stage 6 (index 5)
+      const lvl = stageIntensity();
+
+      // heartbeat (always, gets stronger)
+      heartT -= dt;
+      if (heartT <= 0){
+        heartT = heartbeat(lvl);
+      }
+
+      // breathing (more noticeable on dark stages)
+      if (stage >= 3){
+        breathT -= dt;
+        if (breathT <= 0){
+          breathT = 1.6 - lvl*0.7;
+          softBreath(lvl);
+        }
+      }
+
+      // footsteps when moving
+      const moving = keys.has('arrowup') || keys.has('arrowdown') || keys.has('arrowleft') || keys.has('arrowright');
+      if (moving){
+        stepT -= dt;
+        if (stepT <= 0){
+          stepT = 0.42 - lvl*0.18;
+          softStep(lvl);
+        }
+      } else {
+        stepT = Math.min(stepT, 0.12);
+      }
+
+      // spawn fast flying buckets every so often
+      flySpawn -= dt;
+      if (flySpawn <= 0){
+        flySpawn = 0.9 + Math.random()*1.6; // "every so often"
+        const side = Math.random() < 0.5 ? -1 : 1;
+        const ang = player.a + (side * (0.9 + Math.random()*0.4));
+        const px = player.x + Math.cos(ang) * (14 + Math.random()*8);
+        const py = player.y + Math.sin(ang) * (14 + Math.random()*8);
+        const vx = Math.cos(player.a) * (10 + Math.random()*8) + (Math.random()*2-1);
+        const vy = Math.sin(player.a) * (10 + Math.random()*8) + (Math.random()*2-1);
+        flyers.push({x:px, y:py, vx, vy, life: 1.2 + Math.random()*0.8});
+      }
+
+      // update flyers
+      for (let i=flyers.length-1;i>=0;i--){
+        const b = flyers[i];
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+        b.life -= dt;
+        if (b.life <= 0) flyers.splice(i,1);
+      }
 
       render3D();
       blit();
@@ -900,15 +1214,7 @@
     ensureAudio();
   };
 
-  btnSkip.onclick = () => {
-    overlay.classList.add('hidden');
-    running = true;
-    ensureAudio();
-    setStage(5);
-    showToast('דילגת לשלב 6');
-  };
-
-  btnRestart.onclick = () => location.reload();
+    btnRestart.onclick = () => location.reload();
 
   btnMute.onclick = () => {
     muted = !muted;
